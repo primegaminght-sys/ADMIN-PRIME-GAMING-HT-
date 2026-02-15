@@ -647,7 +647,7 @@
         window.voyeMesaj = function() {
             const msgInput = document.getElementById('msg');
             if(msgInput.value.trim() !== "") {
-                push(ref(db, 'chat'), { sender_name: "ADMIN - PRIME", text: msgInput.value, sender_pfp: "https://cdn-icons-png.flaticon.com/512/2206/2206368.png", timestamp: serverTimestamp() }).then(() => msgInput.value = "");
+                push(ref(db, 'chat'), { sender_name: "ADMIN - PRIME", text: msgInput.value, sender_pfp: "https://res.cloudinary.com/dcpcbglsw/image/upload/v1771048269/1770944335480_setgzx.png", timestamp: serverTimestamp() }).then(() => msgInput.value = "");
             }
         }
     </script>
