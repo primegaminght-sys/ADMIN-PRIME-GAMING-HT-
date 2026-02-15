@@ -128,6 +128,8 @@
             flex-direction: row-reverse;
         }
 
+        .msg-container { display: flex; flex-direction: column; }
+
         .msg-content {
             padding: 10px 14px;
             border-radius: 15px;
@@ -139,8 +141,9 @@
         .admin .msg-content { background: var(--admin-msg); color: white; border-bottom-right-radius: 2px; }
         .user .msg-content { background: var(--user-msg); color: white; border-bottom-left-radius: 2px; }
 
-        .sender-name { font-size: 11px; margin-bottom: 4px; color: #8B949E; display: block; }
+        .sender-name { font-size: 11px; margin-bottom: 4px; color: #8B949E; display: block; font-weight: bold; }
         .admin .sender-name { text-align: right; color: var(--primary); }
+        .user .sender-name { text-align: left; color: var(--accent); }
 
         .user-header {
             display: flex;
@@ -601,7 +604,14 @@
                         if(matchHtml !== "") { kontni = `<div class="card"><b>📊 TABLO MATCH - ${data.info?.game || 'Tournoi'}</b>${matchHtml}</div>`; }
                     } else if(non === "Chat") {
                         const isMe = data.sender_name === "ADMIN - PRIME";
-                        kontni = `<div class="chat-bubble ${isMe ? 'admin' : 'user'}"><img src="${data.sender_pfp || ''}" class="chat-user-pic"><div class="msg-content">${data.text}</div></div>`;
+                        kontni = `
+                        <div class="chat-bubble ${isMe ? 'admin' : 'user'}">
+                            <img src="${data.sender_pfp || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" class="chat-user-pic">
+                            <div class="msg-container">
+                                <span class="sender-name">${data.sender_name || 'Jwè'}</span>
+                                <div class="msg-content">${data.text}</div>
+                            </div>
+                        </div>`;
                     } else if(non === "Defi Lage") {
                         if (data.status === "open") {
                             kontni = `<div class="card"><b>🎮 ${data.game}</b><div class="info">👤 Jwè: ${data.creator_name || 'Inkonnu'}<br>🕹️ Mode: ${data.type1 || ''} - ${data.type2 || ''}<br>💰 Miz: <span class="amount">${data.bet_amount || data.amount || 0} HTG</span></div><div class="update-box"><button class="btn-ban" style="width:100%" onclick="if(confirm('Wete defi sa?')) remove(ref(db, 'challenges/${key}'))">Wete Defi sa</button></div></div>`;
@@ -619,7 +629,6 @@
                         let clickAction = (imgUrl) ? `onclick="togglePrevMatch('${key}')" style="cursor:pointer; color:var(--primary)"` : "";
                         let labelClick = (imgUrl) ? `<br><small style="color:var(--accent)">[Klike pou wè prèv 👁️]</small>` : "";
 
-                        // MODIFIKASYON POU MATCH_ID NAN PRÈV MATCH
                         let matchIdDisplay = "";
                         if(non === "Prèv Match" && data.match_id) {
                             matchIdDisplay = `<br>🆔 Match ID: <span style="color:var(--accent)">${data.match_id}</span>`;
