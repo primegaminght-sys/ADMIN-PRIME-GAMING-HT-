@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisme Gaming HT - Admin</title>
+    <style>
+        :root {
+            --bg: #0B0E14;
+            --card-bg: #161B22;
+            --primary: #3B82F6;
+            --accent: #10B981;
+            --text: #F9FAFB;
+            --danger: #EF4444;
+            --modal-bg: rgba(0, 0, 0, 0.9);
+            --admin-msg: #1E3A8A;
+            --user-msg: #30363D;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            padding-bottom: 80px;
+        }
+
+        .header { 
+            padding: 20px; 
+            text-align: center; 
+            background: #111827;
+            border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header h1 { margin: 0; font-size: 18px; color: var(--primary); letter-spacing: 1px; }
+
+        .nav-categories { 
+            display: flex; 
+            overflow-x: auto; 
+            padding: 12px; 
+            gap: 8px; 
+            background: #0B0E14;
+            border-bottom: 1px solid #30363D;
+        }
+
+        .nav-categories::-webkit-scrollbar { display: none; }
+
+        .nav-categories button { 
+            background: var(--card-bg); 
+            border: 1px solid #30363D; 
+            color: #8B949E; 
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .nav-categories button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        #display-area { padding: 15px; max-width: 500px; margin: auto; }
+        .category-title { display: flex; justify-content: space-between; align-items: center; color: var(--primary); margin-bottom: 12px; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            border-radius: 12px; 
+            border: 1px solid #30363D;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-overlay {
+            background: rgba(11, 14, 20, 0.85);
+            padding: 15px;
+            border-radius: 12px;
+            height: 100%;
+        }
+
+        .pool-match {
+            background: #0D1117;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #30363D;
+        }
+        .match-meta { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 10px; 
+            color: #8B949E; 
+            margin-bottom: 5px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 4px;
+        }
+        .match-teams { display: flex; align-items: center; justify-content: space-between; }
+        .pool-team { flex: 1; text-align: center; font-weight: bold; font-size: 13px; }
+        .pool-vs { padding: 0 10px; color: var(--danger); font-weight: 900; font-style: italic; }
+
+        .winner-select {
+            width: 100%;
+            margin-top: 8px;
+            background: #161b22;
+            color: var(--accent);
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 11px;
+            padding: 4px;
+        }
+
+        .chat-bubble {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+            max-width: 85%;
+        }
+
+        .chat-bubble.admin {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+
+        .msg-content {
+            padding: 10px 14px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .admin .msg-content { background: var(--admin-msg); color: white; border-bottom-right-radius: 2px; }
+        .user .msg-content { background: var(--user-msg); color: white; border-bottom-left-radius: 2px; }
+
+        .sender-name { font-size: 11px; margin-bottom: 4px; color: #8B949E; display: block; }
+        .admin .sender-name { text-align: right; color: var(--primary); }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            background: #21262d;
+        }
+
+        .chat-user-pic {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--accent);
+            flex-shrink: 0;
+        }
+
+        .card b { color: var(--primary); margin: 0; font-size: 16px; }
+        .card .info { font-size: 13px; color: #F9FAFB; margin-top: 5px; line-height: 1.6; }
+        .card .amount { color: var(--accent); font-weight: bold; font-size: 16px; }
+
+        .update-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #30363D;
+        }
+
+        .update-box input, .update-box textarea, .update-box select {
+            width: 100%;
+            padding: 8px;
+            font-size: 13px;
+            background: #0D1117;
+            border: 1px solid #30363D;
+            color: white;
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+
+        .btn-update { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-ban { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-unban { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-plus { background: var(--primary); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        .prev-img-container {
+            width: 100%;
+            margin-top: 12px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #30363D;
+            display: none; 
+        }
+
+        .prev-img {
+            width: 100%;
+            display: block;
+            max-height: 300px;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content { max-width: 95%; max-height: 85%; border-radius: 8px; background: var(--card-bg); padding: 20px; border: 1px solid var(--primary); overflow-y: auto; }
+        .close-modal { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
+
+        .chat-input { position: fixed; bottom: 0; width: 100%; background: #161B22; padding: 12px; display: none; box-sizing: border-box; border-top: 1px solid var(--primary); }
+        .chat-container { display: flex; gap: 8px; max-width: 500px; margin: auto; }
+        .chat-container input { background: #0D1117; border: 1px solid #30363D; color: white; padding: 10px; border-radius: 8px; flex-grow: 1; outline: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header"><h1>PRISME GAMING HT - ADMIN</h1></div>
+
+    <div class="nav-categories" id="navBar">
+        <button onclick="chajKategori('admin_requests/deposits', 'Depo', this)">Depo</button>
+        <button onclick="chajKategori('admin_requests/withdrawals', 'Retrè', this) ">Retrè</button>
+        <button onclick="chajKategori('challenges', 'Defi Lage', this)">Defi Lage</button>
+        <button onclick="chajKategori('challenges', 'Defi Asepte', this)">Defi Asepte</button>
+        <button onclick="chajKategori('tournaments', 'Tournoi', this)">Tournoi</button>
+        <button onclick="chajKategori('tournaments', 'Pool', this)">Pool</button>
+        <button onclick="chajKategori('admin_requests/match_results', 'Prèv Match', this)">Prèv Match</button>
+        <button onclick="chajKategori('users', 'Users', this)">Users</button>
+        <button onclick="chajKategori('chat', 'Chat', this)">Chat</button>
+    </div>
+
+    <div id="display-area">
+        <div style="text-align:center; margin-top: 50px; color: #8B949E;">Chwazi yon kategori...</div>
+    </div>
+
+    <div id="modalTournoi" class="modal">
+        <div class="modal-content" style="width: 300px;">
+            <h3 style="color:var(--primary); margin-top:0;">Lage Tournoi</h3>
+            <div class="update-box">
+                <input type="text" id="t-title" placeholder="Tit Tournoi (Eg: Summer Cup)">
+                <select id="t-game" onchange="updateGameOptions()">
+                    <option value="">Chwazi Jwèt la</option>
+                    <option value="Free Fire">Free Fire</option>
+                    <option value="CODM">CODM</option>
+                    <option value="PUBG Mobile">PUBG Mobile</option>
+                    <option value="Blood Strike">Blood Strike</option>
+                    <option value="DLS">DLS</option>
+                </select>
+                <select id="t-type1"><option value="">Chwazi Types 1</option></select>
+                <select id="t-type2"><option value="">Chwazi Types 2</option></select>
+                
+                <select id="t-max-players">
+                    <option value="">Limit Jwè (10-50)</option>
+                    <script>
+                        for(let i=10; i<=50; i++) {
+                            document.write(`<option value="${i}">${i} Jwè/Ekip</option>`);
+                        }
+                    </script>
+                </select>
+                <input type="number" id="t-price" placeholder="Pri Enskripsyon (HTG)">
+                <textarea id="t-desc" placeholder="Deskripsyon (Eg: Tournament 1vs1...)"></textarea>
+                <input type="date" id="t-date">
+                <input type="time" id="t-time">
+                <button class="btn-update" style="width:100%" onclick="voyeTournoi()">Lage Tounwa</button>
+                <button class="btn-ban" style="width:100%; margin-top:5px;" onclick="closeTournoiModal()">Anile</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPool" class="modal">
+        <div class="modal-content" style="width: 320px;">
+            <h3 style="color:var(--primary); margin-top:0;">Jere Pool & Ekip</h3>
+            <div id="pool-info" style="font-size: 13px; margin-bottom: 10px; color: #8B949E;"></div>
+            
+            <div id="list-ekip" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #30363D; padding: 5px; border-radius: 5px;"></div>
+
+            <div class="update-box" id="form-ekip">
+                <input type="text" id="nom-ekip" placeholder="Non Ekip/Jwè">
+                <button class="btn-update" style="width:100%" onclick="ajouteEkipPool()">Enskri Jwè sa</button>
+            </div>
+            
+            <div class="update-box" style="margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;">
+                <label style="font-size: 11px; color: var(--primary);">Paramèt Match yo:</label>
+                <input type="date" id="pool-date-manual">
+                <input type="time" id="pool-time-manual">
+
+                <label style="font-size: 11px; color: var(--primary);">Chwazi Round:</label>
+                <select id="round-select">
+                    <option value="qualifications">Qualifications</option>
+                    <option value="round_of_16">Premier Tour</option>
+                    <option value="quarter_finals">Quarter Finals</option>
+                    <option value="semi_finals">Semi Finals</option>
+                    <option value="final">Final</option>
+                </select>
+                <button class="btn-update" style="width:100%; background:var(--accent)" onclick="jenerePoolMatch()">Jenere Pool</button>
+            </div>
+            <button class="btn-ban" style="width:100%; margin-top:5px;" onclick="closePoolModal()">Fèmen</button>
+        </div>
+    </div>
+
+    <div id="myModal" class="modal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="imgFull" style="background:transparent; border:none;">
+    </div>
+
+    <div id="chat-box" class="chat-input">
+        <div class="chat-container">
+            <input type="text" id="msg" placeholder="Mesaj piblik...">
+            <button class="btn-update" style="background:var(--primary)" onclick="voyeMesaj()">Voye</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set, update, serverTimestamp, off, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHVG_0BCd0V_lFSmg3_2qyC5rKclG-b0M",
+            authDomain: "prime-gaming-ht.firebaseapp.com",
+            databaseURL: "https://prime-gaming-ht-default-rtdb.firebaseio.com",
+            projectId: "prime-gaming-ht",
+            storageBucket: "prime-gaming-ht.firebasestorage.app",
+            messagingSenderId: "579566074161",
+            appId: "1:579566074161:android:e50abea764dd4d37371810"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let currentRef = null;
+        let activeTournoiID = null;
+        let maxSlots = 0;
+
+        const gameImages = {
+            "Free Fire": "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770996847/e23ffb9c2e863d2fb034906c15d1bf98_pxlul2.jpg",
+            "CODM": "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997001/c74e5bf57d250c1bfc7b0d96f39f42c7_wkpgqd.jpg",
+            "PUBG Mobile": "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997081/c7072f4fca2663a155a55373d64a37be_f7vp1l.jpg",
+            "Blood Strike": "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997367/9476bb2a4d3910f6c63819d27abd24ef_fueziq.jpg",
+            "DLS": "https://res.cloudinary.com/dcpcbglsw/image/upload/v1770997700/ebba961300e1bee5773206a40657a81e_sr9vu9.jpg"
+        };
+
+        const gameOptions = {
+            "Free Fire": { types1: ["1v1", "2v2", "3v3", "4v4"], types2: ["Room Battle Royal", "Room Clash Squad", "Todo Rojo"] },
+            "CODM": { types1: ["1v1", "2v2", "5v5"], types2: ["Multiplayer", "Battle Royal", "Snipers Only"] },
+            "PUBG Mobile": { types1: ["1v1", "2v2", "4v4"], types2: ["TDM Warehouse", "Classic Room", "Sniper Training"] },
+            "Blood Strike": { types1: ["1v1", "2v2", "4v4"], types2: ["Battle Royal", "Squad Fight", "Hot Zone"] },
+            "DLS": { types1: ["1v1"], types2: ["Friendly Match", "Tournament Style"] }
+        };
+
+        window.updateGameOptions = function() {
+            const game = document.getElementById('t-game').value;
+            const t1 = document.getElementById('t-type1');
+            const t2 = document.getElementById('t-type2');
+            t1.innerHTML = '<option value="">Chwazi Jwèt la</option>';
+            t2.innerHTML = '<option value="">Chwazi Types 2</option>';
+            if (game && gameOptions[game]) {
+                gameOptions[game].types1.forEach(opt => t1.innerHTML += `<option value="${opt}">${opt}</option>`);
+                gameOptions[game].types2.forEach(opt => t2.innerHTML += `<option value="${opt}">${opt}</option>`);
+            }
+        };
+
+        window.openModal = (src) => { document.getElementById("myModal").style.display = "flex"; document.getElementById("imgFull").src = src; }
+        window.closeModal = () => { document.getElementById("myModal").style.display = "none"; }
+        window.openTournoiModal = () => { document.getElementById("modalTournoi").style.display = "flex"; }
+        window.closeTournoiModal = () => { document.getElementById("modalTournoi").style.display = "none"; }
+
+        window.openPoolModal = (id, max) => {
+            activeTournoiID = id; maxSlots = max;
+            document.getElementById("modalPool").style.display = "flex";
+            kouteEkipPool();
+        }
+        window.closePoolModal = () => { document.getElementById("modalPool").style.display = "none"; }
+
+        window.togglePrevMatch = (id) => {
+            const element = document.getElementById('prev-container-' + id);
+            if (element.style.display === "none" || element.style.display === "") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function kouteEkipPool() {
+            onValue(ref(db, `tournaments/${activeTournoiID}/teams`), (snap) => {
+                const list = document.getElementById("list-ekip");
+                const info = document.getElementById("pool-info");
+                const form = document.getElementById("form-ekip");
+                list.innerHTML = "";
+                let count = 0;
+                if(snap.exists()){
+                    snap.forEach(child => {
+                        count++;
+                        list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #21262d; font-size:13px;">
+                            <span>${count}. ${child.val().name}</span>
+                            <button onclick="retireEkip('${child.key}')" style="background:none; border:none; color:red; cursor:pointer;">X</button>
+                        </div>`;
+                    });
+                }
+                info.innerText = `Enskripsyon: ${count} / ${maxSlots}`;
+                form.style.display = (count >= maxSlots) ? "none" : "flex"; 
+            });
+        }
+        window.ajouteEkipPool = () => {
+            const nom = document.getElementById("nom-ekip").value;
+            if(!nom) return;
+            push(ref(db, `tournaments/${activeTournoiID}/teams`), { name: nom }).then(() => { document.getElementById("nom-ekip").value = ""; });
+        }
+        window.retireEkip = (key) => { remove(ref(db, `tournaments/${activeTournoiID}/teams/${key}`)); }
+        
+        window.setWinner = (tourId, round, matchIdx, winnerName) => {
+            update(ref(db, `tournaments/${tourId}/brackets/${round}/${matchIdx}`), { winner: winnerName })
+            .then(() => alert("Ganyen sove!"));
+        };
+
+        window.jenerePoolMatch = async () => {
+            const roundToGen = document.getElementById('round-select').value;
+            const manDate = document.getElementById('pool-date-manual').value;
+            const manTime = document.getElementById('pool-time-manual').value;
+
+            if(!manDate || !manTime) return alert("Tanpri chwazi Dat ak Lè avan!");
+
+            const rounds = ["qualifications", "round_of_16", "quarter_finals", "semi_finals", "final"];
+            const currentIdx = rounds.indexOf(roundToGen);
+
+            const snap = await get(ref(db, `tournaments/${activeTournoiID}`));
+            if(!snap.exists()) return;
+            
+            const tourData = snap.val();
+            let list = [];
+            
+            if (currentIdx === 0) { 
+                if(!tourData.teams) return alert("Ajoute moun anvan!");
+                Object.values(tourData.teams).forEach(t => list.push(t.name));
+            } else { 
+                const prevRound = rounds[currentIdx - 1];
+                const prevMatches = tourData.brackets?.[prevRound];
+                if(!prevMatches) return alert("Ou dwe jenere round anvan an dabò!");
+                
+                prevMatches.forEach(m => {
+                    if(m.winner && m.winner !== "null") list.push(m.winner);
+                });
+                
+                if(list.length < 2) return alert("Ou dwe chwazi ganyen yo nan round anvan an!");
+            }
+
+            list.sort(() => Math.random() - 0.5); 
+            
+            const [hrs, mins] = manTime.split(':');
+            const h = hrs % 12 || 12;
+            const ampm = hrs >= 12 ? 'PM' : 'AM';
+            const formattedTime = `${h}:${mins} ${ampm}`;
+
+            let matchData = [];
+            for(let i=0; i<list.length; i+=2) { 
+                // Ajoute match_id isit la
+                const mID = "M-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100);
+                matchData.push({ 
+                    match_id: mID,
+                    p1: list[i], 
+                    p2: list[i+1] || "BYE (Avanse)",
+                    date: manDate,
+                    time: formattedTime,
+                    winner: "null"
+                }); 
+            }
+            
+            update(ref(db, `tournaments/${activeTournoiID}/brackets`), { [roundToGen]: matchData })
+            .then(() => alert("Round " + roundToGen + " jenere ak siksè!"));
+        }
+
+        window.voyeTournoi = function() {
+            const tit = document.getElementById('t-title').value;
+            const jwet = document.getElementById('t-game').value;
+            const type1 = document.getElementById('t-type1').value;
+            const type2 = document.getElementById('t-type2').value;
+            const slots = document.getElementById('t-max-players').value; 
+            const price = document.getElementById('t-price').value;
+            const desc = document.getElementById('t-desc').value;
+            const date = document.getElementById('t-date').value;
+            const time = document.getElementById('t-time').value;
+
+            if(!tit || !jwet || !type1 || !type2 || !date || !time || !slots || !price) return alert("Ranpli tout bwat yo");
+
+            const newTourneyRef = push(ref(db, 'tournaments'));
+            const tourID = newTourneyRef.key;
+
+            const tournamentData = {
+                info: {
+                    title: tit,
+                    game: jwet, type1: type1, type2: type2,
+                    slots: Number(slots),
+                    price: Number(price),
+                    description: desc, status: "open",
+                    image_bg: gameImages[jwet] || "",
+                    created_at: serverTimestamp()
+                },
+                schedule: { start_date: date, start_time: time },
+                brackets: { qualifications: "", round_of_16: "", quarter_finals: "", semi_finals: "", final: "", champion: "null" }
+            };
+
+            set(newTourneyRef, tournamentData).then(() => {
+                push(ref(db, 'challenges'), {
+                    creator_id: "ADMIN_SYSTEM",
+                    creator_name: "🏆 TOURNOI: " + tit,
+                    creator_img: "https://cdn-icons-png.flaticon.com/512/2206/2206368.png",
+                    game: jwet,
+                    game_type: tit,
+                    type1: type1,
+                    type2: type2,
+                    bet_amount: Number(price),
+                    amount: Number(price),
+                    status: "open",
+                    room_id: "TOURNOI-" + tourID.substring(0, 5),
+                    room_pass: "Gade Orè a",
+                    rules: desc + " | Dat: " + date + " vè " + time,
+                    is_tourney: true,
+                    isTourney: true,
+                    tournament_id: tourID,
+                    timestamp: serverTimestamp()
+                });
+
+                alert("Tournoi lage ak siksè! Jwè yo ap wè l kounye a."); 
+                document.getElementById('t-title').value = "";
+                document.getElementById('t-price').value = "";
+                document.getElementById('t-desc').value = ""; 
+                closeTournoiModal(); 
+            }).catch(err => alert("Erè: " + err.message));
+        }
+
+        window.updateBalance = function(uid) {
+            const inputBal = document.getElementById(`bal-${uid}`);
+            const nouvoBalans = inputBal.value;
+            if (nouvoBalans === "" || isNaN(nouvoBalans)) return alert("Mete yon chif valab");
+            update(ref(db, `users/${uid}`), { balance: Number(nouvoBalans) }).then(() => { alert("Balans lan chanje!"); inputBal.value = ""; }).catch(err => alert("Erè: " + err.message));
+        }
+
+        window.banUser = function(uid, isCurrentlyBanned) {
+            const newRole = isCurrentlyBanned ? 'player' : 'banned';
+            const konfimasyon = isCurrentlyBanned ? "Debloke jwè sa?" : "Bloke (Ban) jwè sa?";
+            if(confirm(konfimasyon)) {
+                update(ref(db, `users/${uid}`), { role: newRole }).then(() => alert("Estati a chanje ak siksè!")).catch(err => alert("Erè: " + err.message));
+            }
+        }
+
+        window.chajKategori = function(path, non, btn) {
+            if (currentRef) off(currentRef);
+            document.querySelectorAll('.nav-categories button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const area = document.getElementById('display-area');
+            document.getElementById('chat-box').style.display = (non === 'Chat') ? 'block' : 'none';
+            let btnPlus = (non === 'Tournoi') ? `<button class="btn-plus" onclick="openTournoiModal()">+</button>` : "";
+            area.innerHTML = `<div class="category-title"><span>Kategori: ${non}</span> ${btnPlus}</div><div style="text-align:center; padding:20px;">Ap chaje...</div>`;
+
+            currentRef = ref(db, path);
+            onValue(currentRef, (snapshot) => {
+                area.innerHTML = `<div class="category-title"><span>Kategori: ${non}</span> ${btnPlus}</div>`;
+                if (!snapshot.exists()) { area.innerHTML += `<div style="text-align:center; padding:20px; color:#8B949E;">Pa gen done.</div>`; return; }
+
+                snapshot.forEach((child) => {
+                    const data = child.val(); const key = child.key; let kontni = "";
+                    const imgUrl = data.proof_img || data.screenshot || data.photoUrl || data.image_url;
+                    const imgHtml = imgUrl ? `<div class="prev-img-container" id="prev-container-${key}"><img src="${imgUrl}" class="prev-img" onclick="openModal('${imgUrl}')"></div>` : "";
+
+                    if(non === "Users") {
+                        const isBanned = data.role === 'banned';
+                        const userPhoto = data.photoUrl || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                        kontni = `<div class="card"><div class="user-header"><img src="${userPhoto}" class="profile-pic" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'"><b style="${isBanned ? 'color:var(--danger)' : ''}">${data.username || 'N/A'} ${isBanned ? '(BANNED 🚫)' : ''}</b></div><div class="info">📧 ${data.email || 'Pa gen imèl'}<br>📞 ${data.phone || 'Pa gen nimewo'}<br>🎭 Ròl: ${data.role || 'player'}<br>💰 Balans: <span class="amount">${data.balance || 0} HTG</span></div><div class="update-box"><input type="number" id="bal-${key}" placeholder="Nouvo balans"><button class="btn-update" onclick="updateBalance('${key}')">OK</button><button class="${isBanned ? 'btn-unban' : 'btn-ban'}" onclick="banUser('${key}', ${isBanned})">${isBanned ? 'Unban' : 'Ban'}</button></div></div>`;
+                    } else if(non === "Tournoi") {
+                        const tInfo = data.info || {};
+                        kontni = `<div class="card" style="background-image: url('${tInfo.image_bg}')"><div class="card-overlay"><b>🏆 ${tInfo.title || tInfo.game}</b><br><div class="info">🎮 ${tInfo.type1 || ''} - ${tInfo.type2 || ''}<br>💰 Pri: ${tInfo.price || 0} HTG<br>📅 <b>Dat:</b> ${data.schedule?.start_date || 'N/A'} | 👥 Limit: ${tInfo.slots || 'N/A'}</div><div class="update-box"><button class="btn-update" style="background:var(--primary)" onclick="openPoolModal('${key}', ${tInfo.slots || 10})">Jere Pool</button><button class="btn-ban" onclick="if(confirm('Wete tournoi sa?')) remove(ref(db, 'tournaments/${key}'))">X</button></div></div></div>`;
+                    } else if(non === "Pool") {
+                        const brackets = data.brackets || {};
+                        let matchHtml = "";
+                        const roundNames = { "qualifications": "Qualifications", "round_of_16": "Premier Tour", "quarter_finals": "Quarter Finals", "semi_finals": "Semi Finals", "final": "GRANDE FINALE" };
+                        Object.keys(roundNames).forEach(roundKey => {
+                            if(brackets[roundKey] && Array.isArray(brackets[roundKey])) {
+                                matchHtml += `<div style="color:var(--primary); font-size:11px; margin-top:10px; font-weight:bold; border-bottom:1px solid #333; padding-bottom:3px;">${roundNames[roundKey]}</div>`;
+                                brackets[roundKey].forEach((m, idx) => {
+                                    // Afiche match_id anlè si li egziste
+                                    const mLabel = m.match_id ? `<span style="color:#8B949E; font-size:9px;">ID: ${m.match_id}</span>` : "";
+                                    matchHtml += `<div class="pool-match"><div class="match-meta"><span>📅 ${m.date}</span> ${mLabel} <span>⏰ ${m.time}</span></div><div class="match-teams"><div class="pool-team" style="${m.winner === m.p1 ? 'color:var(--accent)' : ''}">${m.p1}</div><div class="pool-vs">VS</div><div class="pool-team" style="${m.winner === m.p2 ? 'color:var(--accent)' : ''}">${m.p2}</div></div><select class="winner-select" onchange="setWinner('${key}', '${roundKey}', ${idx}, this.value)"><option value="null">-- Chwazi Ganyen --</option><option value="${m.p1}" ${m.winner === m.p1 ? 'selected' : ''}>Ganyen: ${m.p1}</option><option value="${m.p2}" ${m.winner === m.p2 ? 'selected' : ''}>Ganyen: ${m.p2}</option></select></div>`;
+                                });
+                            }
+                        });
+                        if(matchHtml !== "") { kontni = `<div class="card"><b>📊 TABLO MATCH - ${data.info?.game || 'Tournoi'}</b>${matchHtml}</div>`; }
+                    } else if(non === "Chat") {
+                        const isMe = data.sender_name === "ADMIN - PRIME";
+                        kontni = `<div class="chat-bubble ${isMe ? 'admin' : 'user'}"><img src="${data.sender_pfp || ''}" class="chat-user-pic"><div class="msg-content">${data.text}</div></div>`;
+                    } else if(non === "Defi Lage") {
+                        if (data.status === "open") {
+                            kontni = `<div class="card"><b>🎮 ${data.game}</b><div class="info">👤 Jwè: ${data.creator_name || 'Inkonnu'}<br>🕹️ Mode: ${data.type1 || ''} - ${data.type2 || ''}<br>💰 Miz: <span class="amount">${data.bet_amount || data.amount || 0} HTG</span></div><div class="update-box"><button class="btn-ban" style="width:100%" onclick="if(confirm('Wete defi sa?')) remove(ref(db, 'challenges/${key}'))">Wete Defi sa</button></div></div>`;
+                        }
+                    } else if(non === "Defi Asepte") {
+                        if (data.status === "accepted" && data.player2_name && data.player2_name !== "null" && data.player2_name !== "") {
+                            kontni = `<div class="card"><b style="color:var(--accent)">🤝 MATCH ASEPTE: ${data.game}</b><div class="info">⚔️ <b>${data.creator_name}</b> <span style="color:var(--danger)">VS</span> <b>${data.player2_name || data.joiner_name || 'Jwè ki asepte a'}</b><br>💰 Miz: <span class="amount">${data.bet_amount || data.amount || 0} HTG</span><br>🎮 Mode: ${data.type1 || ''} | ${data.type2 || ''}<br>🆔 Room: ${data.room_id || 'N/A'} | PW: ${data.room_pass || 'N/A'}</div><div class="update-box"><button class="btn-ban" style="width:100%" onclick="if(confirm('Anile match sa?')) remove(ref(db, 'challenges/${key}'))">Anile Match</button></div></div>`;
+                        }
+                    } else if(non === "Prèv Match" || non === "Depo" || non === "Retrè") {
+                        let extraInfo = "";
+                        if(non === "Retrè") {
+                            extraInfo = `<br>📞 Nimewo: <span style="color:var(--primary)">${data.phone || data.number || 'Pa gen nimewo'}</span>`;
+                        }
+                        
+                        let clickAction = (imgUrl) ? `onclick="togglePrevMatch('${key}')" style="cursor:pointer; color:var(--primary)"` : "";
+                        let labelClick = (imgUrl) ? `<br><small style="color:var(--accent)">[Klike pou wè prèv 👁️]</small>` : "";
+
+                        kontni = `
+                        <div class="card">
+                            <b ${clickAction}>${non} ${labelClick}</b>
+                            <div class="info">
+                                Jwè: ${data.username || 'Inkonnu'}<br>
+                                Montan: ${data.amount || ''} HTG ${extraInfo}
+                            </div>
+                            <div class="update-box">
+                                <button class="btn-ban" style="width:100%" onclick="if(confirm('Wete demand sa nan lis la?')) remove(ref(db, '${path}/${key}'))">Netwaye / Efase</button>
+                            </div>
+                            ${imgHtml}
+                        </div>`;
+                    }
+                    if (kontni !== "") area.innerHTML += kontni;
+                });
+                if(non === "Chat") window.scrollTo(0, document.body.scrollHeight);
+            });
+        }
+
+        window.voyeMesaj = function() {
+            const msgInput = document.getElementById('msg');
+            if(msgInput.value.trim() !== "") {
+                push(ref(db, 'chat'), { sender_name: "ADMIN - PRIME", text: msgInput.value, sender_pfp: "https://cdn-icons-png.flaticon.com/512/2206/2206368.png", timestamp: serverTimestamp() }).then(() => msgInput.value = "");
+            }
+        }
+    </script>
+</body>
+</html>
