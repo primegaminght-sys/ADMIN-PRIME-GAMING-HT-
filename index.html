@@ -473,10 +473,7 @@
 
             let matchData = [];
             for(let i=0; i<list.length; i+=2) { 
-                // Ajoute match_id isit la
-                const mID = "M-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100);
                 matchData.push({ 
-                    match_id: mID,
                     p1: list[i], 
                     p2: list[i+1] || "BYE (Avanse)",
                     date: manDate,
@@ -597,9 +594,7 @@
                             if(brackets[roundKey] && Array.isArray(brackets[roundKey])) {
                                 matchHtml += `<div style="color:var(--primary); font-size:11px; margin-top:10px; font-weight:bold; border-bottom:1px solid #333; padding-bottom:3px;">${roundNames[roundKey]}</div>`;
                                 brackets[roundKey].forEach((m, idx) => {
-                                    // Afiche match_id anlè si li egziste
-                                    const mLabel = m.match_id ? `<span style="color:#8B949E; font-size:9px;">ID: ${m.match_id}</span>` : "";
-                                    matchHtml += `<div class="pool-match"><div class="match-meta"><span>📅 ${m.date}</span> ${mLabel} <span>⏰ ${m.time}</span></div><div class="match-teams"><div class="pool-team" style="${m.winner === m.p1 ? 'color:var(--accent)' : ''}">${m.p1}</div><div class="pool-vs">VS</div><div class="pool-team" style="${m.winner === m.p2 ? 'color:var(--accent)' : ''}">${m.p2}</div></div><select class="winner-select" onchange="setWinner('${key}', '${roundKey}', ${idx}, this.value)"><option value="null">-- Chwazi Ganyen --</option><option value="${m.p1}" ${m.winner === m.p1 ? 'selected' : ''}>Ganyen: ${m.p1}</option><option value="${m.p2}" ${m.winner === m.p2 ? 'selected' : ''}>Ganyen: ${m.p2}</option></select></div>`;
+                                    matchHtml += `<div class="pool-match"><div class="match-meta"><span>📅 ${m.date}</span><span>⏰ ${m.time}</span></div><div class="match-teams"><div class="pool-team" style="${m.winner === m.p1 ? 'color:var(--accent)' : ''}">${m.p1}</div><div class="pool-vs">VS</div><div class="pool-team" style="${m.winner === m.p2 ? 'color:var(--accent)' : ''}">${m.p2}</div></div><select class="winner-select" onchange="setWinner('${key}', '${roundKey}', ${idx}, this.value)"><option value="null">-- Chwazi Ganyen --</option><option value="${m.p1}" ${m.winner === m.p1 ? 'selected' : ''}>Ganyen: ${m.p1}</option><option value="${m.p2}" ${m.winner === m.p2 ? 'selected' : ''}>Ganyen: ${m.p2}</option></select></div>`;
                                 });
                             }
                         });
@@ -621,6 +616,11 @@
                             extraInfo = `<br>📞 Nimewo: <span style="color:var(--primary)">${data.phone || data.number || 'Pa gen nimewo'}</span>`;
                         }
                         
+                        // Isit la mwen mete match_id a si kategori a se "Prèv Match"
+                        if(non === "Prèv Match" && data.match_id) {
+                            extraInfo += `<br>🆔 Match ID: <span style="color:var(--accent)">${data.match_id}</span>`;
+                        }
+                        
                         let clickAction = (imgUrl) ? `onclick="togglePrevMatch('${key}')" style="cursor:pointer; color:var(--primary)"` : "";
                         let labelClick = (imgUrl) ? `<br><small style="color:var(--accent)">[Klike pou wè prèv 👁️]</small>` : "";
 
@@ -628,27 +628,3 @@
                         <div class="card">
                             <b ${clickAction}>${non} ${labelClick}</b>
                             <div class="info">
-                                Jwè: ${data.username || 'Inkonnu'}<br>
-                                Montan: ${data.amount || ''} HTG ${extraInfo}
-                            </div>
-                            <div class="update-box">
-                                <button class="btn-ban" style="width:100%" onclick="if(confirm('Wete demand sa nan lis la?')) remove(ref(db, '${path}/${key}'))">Netwaye / Efase</button>
-                            </div>
-                            ${imgHtml}
-                        </div>`;
-                    }
-                    if (kontni !== "") area.innerHTML += kontni;
-                });
-                if(non === "Chat") window.scrollTo(0, document.body.scrollHeight);
-            });
-        }
-
-        window.voyeMesaj = function() {
-            const msgInput = document.getElementById('msg');
-            if(msgInput.value.trim() !== "") {
-                push(ref(db, 'chat'), { sender_name: "ADMIN - PRIME", text: msgInput.value, sender_pfp: "https://cdn-icons-png.flaticon.com/512/2206/2206368.png", timestamp: serverTimestamp() }).then(() => msgInput.value = "");
-            }
-        }
-    </script>
-</body>
-</html>
