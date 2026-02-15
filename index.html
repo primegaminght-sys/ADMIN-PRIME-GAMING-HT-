@@ -616,15 +616,40 @@
                             extraInfo = `<br>📞 Nimewo: <span style="color:var(--primary)">${data.phone || data.number || 'Pa gen nimewo'}</span>`;
                         }
                         
-                        // Isit la mwen mete match_id a si kategori a se "Prèv Match"
-                        if(non === "Prèv Match" && data.match_id) {
-                            extraInfo += `<br>🆔 Match ID: <span style="color:var(--accent)">${data.match_id}</span>`;
-                        }
-                        
                         let clickAction = (imgUrl) ? `onclick="togglePrevMatch('${key}')" style="cursor:pointer; color:var(--primary)"` : "";
                         let labelClick = (imgUrl) ? `<br><small style="color:var(--accent)">[Klike pou wè prèv 👁️]</small>` : "";
+
+                        // MODIFIKASYON POU MATCH_ID NAN PRÈV MATCH
+                        let matchIdDisplay = "";
+                        if(non === "Prèv Match" && data.match_id) {
+                            matchIdDisplay = `<br>🆔 Match ID: <span style="color:var(--accent)">${data.match_id}</span>`;
+                        }
 
                         kontni = `
                         <div class="card">
                             <b ${clickAction}>${non} ${labelClick}</b>
                             <div class="info">
+                                Jwè: ${data.username || 'Inkonnu'} ${matchIdDisplay}<br>
+                                Montan: ${data.amount || ''} HTG ${extraInfo}
+                            </div>
+                            <div class="update-box">
+                                <button class="btn-ban" style="width:100%" onclick="if(confirm('Wete demand sa nan lis la?')) remove(ref(db, '${path}/${key}'))">Netwaye / Efase</button>
+                            </div>
+                            ${imgHtml}
+                        </div>`;
+                    }
+                    if (kontni !== "") area.innerHTML += kontni;
+                });
+                if(non === "Chat") window.scrollTo(0, document.body.scrollHeight);
+            });
+        }
+
+        window.voyeMesaj = function() {
+            const msgInput = document.getElementById('msg');
+            if(msgInput.value.trim() !== "") {
+                push(ref(db, 'chat'), { sender_name: "ADMIN - PRIME", text: msgInput.value, sender_pfp: "https://cdn-icons-png.flaticon.com/512/2206/2206368.png", timestamp: serverTimestamp() }).then(() => msgInput.value = "");
+            }
+        }
+    </script>
+</body>
+</html>
